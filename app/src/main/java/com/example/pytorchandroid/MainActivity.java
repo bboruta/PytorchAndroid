@@ -59,10 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
             Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
 
-            // timer start - log it somewhere
+            long startTime = StopWatch.now();
             String pred = classifier.predict(imageBitmap);
+            long stopTime = StopWatch.now();
+            long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
             resultView.putExtra("pred", pred);
-            // timer stop
+            resultView.putExtra("elapsed", String.valueOf(elapsedTime));
 
             startActivity(resultView);
 

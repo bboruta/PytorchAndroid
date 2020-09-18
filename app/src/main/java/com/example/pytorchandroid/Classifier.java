@@ -44,19 +44,12 @@ public class Classifier {
     }
 
     public String predict(Bitmap bitmap){
-
-        long startTime = StopWatch.now();
-
         Tensor tensor = preprocess(bitmap,224);
         IValue inputs = IValue.from(tensor);
         Tensor outputs = model.forward(inputs).toTensor();
         float[] scores = outputs.getDataAsFloatArray();
         int classIndex = argMax(scores);
 
-        long stopTime = StopWatch.now();
-        long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
-
-        System.out.println(elapsedTime);
         return Constants.IMAGENET_CLASSES[classIndex];
     }
 }

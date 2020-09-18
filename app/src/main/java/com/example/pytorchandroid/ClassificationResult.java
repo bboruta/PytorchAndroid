@@ -19,13 +19,18 @@ public class ClassificationResult extends AppCompatActivity {
         Bitmap imageBitmap = (Bitmap) getIntent().getBundleExtra("imagedata").get("data");
 
         String pred = getIntent().getStringExtra("pred");
+        String elapsedTime = getIntent().getStringExtra("elapsed");
 
         ImageView imageView = findViewById(R.id.image);
         imageView.setImageBitmap(imageBitmap);
 
         TextView textView = findViewById(R.id.label);
-        textView.setText(pred);
+        String elapsedTimeText = pred +  " Time: " + elapsedTime + " [ms]";
+        textView.setText(elapsedTimeText);
 
+        //TextView timeElapsedTextView = findViewById(R.id.timeElapsedLabel);
+
+        //textView.setText(elapsedTimeText);
     }
 
 }

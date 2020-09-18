@@ -23,11 +23,22 @@
         android:layout_height="wrap_content"
         android:text="Hello World"
         android:id="@+id/label"
-        android:textSize="16pt"
+        android:textSize="10pt"
         app:layout_constraintStart_toStartOf="@id/image"
         app:layout_constraintEnd_toEndOf="@id/image"
         app:layout_constraintTop_toBottomOf="@id/image"
 
         />
+
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/label"-->
+<!--        android:id="@+id/timeElapsedLabel"-->
+<!--        android:textSize="16pt"-->
+<!--        app:layout_constraintStart_toStartOf="@id/label"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/label"-->
+
+<!--        />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
