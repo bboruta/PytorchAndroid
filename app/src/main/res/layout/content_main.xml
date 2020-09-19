@@ -14,11 +14,28 @@
         android:textSize="26dp"
         android:background="#83D5C4"
         android:padding="5dp"
-        android:fontFamily="cursive"
+        android:fontFamily="sans-serif"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
+
+    <Button
+        android:id="@+id/load"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#83D5C4"
+        android:fontFamily="sans-serif"
+        android:padding="5dp"
+        android:text="Load images"
+        android:textColor="#ffffff"
+        android:textSize="26dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.622" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
