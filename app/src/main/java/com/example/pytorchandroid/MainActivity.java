@@ -1,11 +1,13 @@
 package com.example.pytorchandroid;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         averageTimeTextView = findViewById(R.id.averageTime);
         logTextView = findViewById(R.id.logTextView);
+        logTextView.setMovementMethod(new ScrollingMovementMethod());
 
         Button capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener(){
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view){
                 Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(gallery, pickImageCode);
             }
         });
@@ -88,30 +93,45 @@ public class MainActivity extends AppCompatActivity {
             long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
             resultView.putExtra("pred", pred);
             resultView.putExtra("elapsed", String.valueOf(elapsedTime));
+            startPrediction(imageBitmap, resultView);
         }
         else if (requestCode == pickImageCode  && resultCode == RESULT_OK) {
+            byte[] byteArray = null;
             try {
-                byte[] byteArray = null;
                 Uri imageUri = data.getData();
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                byte[] bt = getBytes(imageStream);
-                imageBitmap = BitmapFactory.decodeByteArray(bt, 0, bt.length);
-                int newWidth = imageBitmap.getWidth() / 8;
-                int newHeight = imageBitmap.getHeight() / 8;
-                imageBitmap = Bitmap.createScaledBitmap(
-                        imageBitmap,
-                        newWidth,
-                        newHeight,
-                        false);
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byteArray = stream.toByteArray();
-                resultView.putExtra("imagedata", byteArray);
+                List<Uri> uris = new ArrayList<>();
+                ClipData clipData = data.getClipData();
+                if (clipData != null) {
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        ClipData.Item item = clipData.getItemAt(i);
+                        Uri uri = item.getUri();
+                        uris.add(uri);
+                        InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                        byte[] bt = getBytes(imageStream);
+                        imageBitmap = BitmapFactory.decodeByteArray(bt, 0, bt.length);
+                        int newWidth = imageBitmap.getWidth() / 8;
+                        int newHeight = imageBitmap.getHeight() / 8;
+                        imageBitmap = Bitmap.createScaledBitmap(
+                                imageBitmap,
+                                newWidth,
+                                newHeight,
+                                false);
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        byteArray = stream.toByteArray();
+                        startPrediction(imageBitmap, resultView);
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            // showing only the last image from the set
+            resultView.putExtra("imagedata", byteArray);
         }
+        startActivity(resultView);
+    }
 
+    private void startPrediction(Bitmap imageBitmap, Intent resultView) {
         long startTime = StopWatch.now();
         String pred = classifier.predict(imageBitmap);
         long stopTime = StopWatch.now();
@@ -122,8 +142,6 @@ public class MainActivity extends AppCompatActivity {
         logTextView.append("Time for predition: " + elapsedTime + "[ms]\n");
         int mean = mean(elapsedTimeForPredictions);
         averageTimeTextView.setText("Average time: " + mean + "[ms] for " + elapsedTimeForPredictions.size() + " predictions.");
-
-        startActivity(resultView);
     }
 
     private byte[] getBytes(InputStream inputStream) throws IOException {
