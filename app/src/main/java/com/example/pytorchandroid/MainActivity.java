@@ -72,10 +72,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == cameraRequestCode && resultCode == RESULT_OK) {
 
-            Intent resultView = new Intent(this, ClassificationResult.class);
-            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+        Intent resultView = new Intent(this, ClassificationResult.class);
+        Bitmap imageBitmap = null;
+
+        if (requestCode == cameraRequestCode && resultCode == RESULT_OK) {
+            imageBitmap = (Bitmap) data.getExtras().get("data");
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
@@ -86,13 +88,10 @@ public class MainActivity extends AppCompatActivity {
             long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
             resultView.putExtra("pred", pred);
             resultView.putExtra("elapsed", String.valueOf(elapsedTime));
-
-            startActivity(resultView);
         }
         else if (requestCode == pickImageCode  && resultCode == RESULT_OK) {
-            Bitmap imageBitmap = null;
-            byte[] byteArray = null;
             try {
+                byte[] byteArray = null;
                 Uri imageUri = data.getData();
                 InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 byte[] bt = getBytes(imageStream);
@@ -107,27 +106,24 @@ public class MainActivity extends AppCompatActivity {
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byteArray = stream.toByteArray();
+                resultView.putExtra("imagedata", byteArray);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            Intent resultView = new Intent(this, ClassificationResult.class);
-            resultView.putExtra("imagedata", byteArray);
-            long startTime = StopWatch.now();
-            String pred = classifier.predict(imageBitmap);
-            long stopTime = StopWatch.now();
-            int elapsedTime = (int) StopWatch.getElapsedTime(startTime, stopTime);
-            resultView.putExtra("pred", pred);
-            resultView.putExtra("elapsed", String.valueOf(elapsedTime));
-            elapsedTimeForPredictions.add(elapsedTime);
-            //TextView textView = findViewById(R.id.logTextView);
-            logTextView.append("Time for predition: " + elapsedTime + "[ms]\n");
-
-            int mean = mean(elapsedTimeForPredictions);
-            averageTimeTextView.setText("Average time: " + mean + "[ms] for " + elapsedTimeForPredictions.size() + " predictions.");
-
-            startActivity(resultView);
         }
+
+        long startTime = StopWatch.now();
+        String pred = classifier.predict(imageBitmap);
+        long stopTime = StopWatch.now();
+        int elapsedTime = (int) StopWatch.getElapsedTime(startTime, stopTime);
+        resultView.putExtra("pred", pred);
+        resultView.putExtra("elapsed", String.valueOf(elapsedTime));
+        elapsedTimeForPredictions.add(elapsedTime);
+        logTextView.append("Time for predition: " + elapsedTime + "[ms]\n");
+        int mean = mean(elapsedTimeForPredictions);
+        averageTimeTextView.setText("Average time: " + mean + "[ms] for " + elapsedTimeForPredictions.size() + " predictions.");
+
+        startActivity(resultView);
     }
 
     private byte[] getBytes(InputStream inputStream) throws IOException {
