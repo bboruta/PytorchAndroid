@@ -64,10 +64,18 @@
         android:layout_width="361dp"
         android:layout_height="41dp"
         android:layout_marginBottom="36dp"
-        android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/capture"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/logLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log:"
+        android:textStyle="bold"
+        tools:layout_editor_absoluteX="43dp"
+        tools:layout_editor_absoluteY="145dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

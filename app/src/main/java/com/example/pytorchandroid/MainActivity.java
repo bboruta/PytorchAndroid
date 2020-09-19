@@ -13,8 +13,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,9 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
     int cameraRequestCode = 001;
     int pickImageCode = 100;
-    ArrayList<Integer> elapsedTimeForPredictions = new ArrayList<Integer>();
+    ArrayList<Integer> elapsedTimeForPredictions = new ArrayList<>();
 
     Classifier classifier;
+
+    TextView averageTimeTextView;
+    TextView logTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         classifier = new Classifier(Utils.assetFilePath(this,"mobilenet-v2.pt"));
+
+        averageTimeTextView = findViewById(R.id.averageTime);
+        logTextView = findViewById(R.id.logTextView);
 
         Button capture = findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener(){
@@ -59,10 +63,8 @@ public class MainActivity extends AppCompatActivity {
         clearLog.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                TextView logTextView = findViewById(R.id.logTextView);
+                averageTimeTextView.setText("");
                 logTextView.setText("");
-                TextView textView = findViewById(R.id.averageTime);
-                textView.setText("");
             }
         });
     }
@@ -118,10 +120,9 @@ public class MainActivity extends AppCompatActivity {
             resultView.putExtra("pred", pred);
             resultView.putExtra("elapsed", String.valueOf(elapsedTime));
             elapsedTimeForPredictions.add(elapsedTime);
-            TextView textView = findViewById(R.id.logTextView);
-            textView.append("Time for predition: " + elapsedTime + "[ms]\n");
+            //TextView textView = findViewById(R.id.logTextView);
+            logTextView.append("Time for predition: " + elapsedTime + "[ms]\n");
 
-            TextView averageTimeTextView = findViewById(R.id.averageTime);
             int mean = mean(elapsedTimeForPredictions);
             averageTimeTextView.setText("Average time: " + mean + "[ms] for " + elapsedTimeForPredictions.size() + " predictions.");
 
