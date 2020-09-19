@@ -8,18 +8,23 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     int cameraRequestCode = 001;
     int pickImageCode = 100;
+    ArrayList<Integer> elapsedTimeForPredictions = new ArrayList<Integer>();
 
     Classifier classifier;
 
@@ -29,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         classifier = new Classifier(Utils.assetFilePath(this,"mobilenet-v2.pt"));
 
@@ -48,6 +52,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view){
                 Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
                 startActivityForResult(gallery, pickImageCode);
+            }
+        });
+
+        Button clearLog = findViewById(R.id.clearButton);
+        clearLog.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                TextView logTextView = findViewById(R.id.logTextView);
+                logTextView.setText("");
+                TextView textView = findViewById(R.id.averageTime);
+                textView.setText("");
             }
         });
     }
@@ -99,9 +114,17 @@ public class MainActivity extends AppCompatActivity {
             long startTime = StopWatch.now();
             String pred = classifier.predict(imageBitmap);
             long stopTime = StopWatch.now();
-            long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
+            int elapsedTime = (int) StopWatch.getElapsedTime(startTime, stopTime);
             resultView.putExtra("pred", pred);
             resultView.putExtra("elapsed", String.valueOf(elapsedTime));
+            elapsedTimeForPredictions.add(elapsedTime);
+            TextView textView = findViewById(R.id.logTextView);
+            textView.append("Time for predition: " + elapsedTime + "[ms]\n");
+
+            TextView averageTimeTextView = findViewById(R.id.averageTime);
+            int mean = mean(elapsedTimeForPredictions);
+            averageTimeTextView.setText("Average time: " + mean + "[ms] for " + elapsedTimeForPredictions.size() + " predictions.");
+
             startActivity(resultView);
         }
     }
@@ -116,5 +139,18 @@ public class MainActivity extends AppCompatActivity {
             byteBuffer.write(buffer, 0, len);
         }
         return byteBuffer.toByteArray();
+    }
+
+    private int sum(ArrayList<Integer> list) {
+        int sum = 0;
+        for (int i = 0; i < list.size(); i++)
+        {
+            sum += list.get(i);
+        }
+        return sum;
+    }
+
+    private int mean(ArrayList<Integer> list) {
+        return sum(list) / list.size();
     }
 }
