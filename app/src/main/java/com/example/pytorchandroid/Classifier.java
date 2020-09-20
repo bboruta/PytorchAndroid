@@ -52,4 +52,14 @@ public class Classifier {
 
         return Constants.IMAGENET_CLASSES[classIndex];
     }
+
+    public String predict_cars(Bitmap bitmap){
+        Tensor tensor = preprocess(bitmap,227);
+        IValue inputs = IValue.from(tensor);
+        Tensor outputs = model.forward(inputs).toTensor();
+        float[] scores = outputs.getDataAsFloatArray();
+        int classIndex = argMax(scores);
+
+        return Constants.CARS_CLASSES[classIndex];
+    }
 }

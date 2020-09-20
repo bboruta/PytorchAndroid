@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         classifier = new Classifier(Utils.assetFilePath(this,"mobilenet-v2.pt"));
+        //classifier = new Classifier(Utils.assetFilePath(this,"condense_net.pt"));
 
         averageTimeTextView = findViewById(R.id.averageTime);
         logTextView = findViewById(R.id.logTextView);
@@ -86,14 +87,8 @@ public class MainActivity extends AppCompatActivity {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             byte[] byteArray = stream.toByteArray();
-            resultView.putExtra("imagedata", byteArray);
-            long startTime = StopWatch.now();
-            String pred = classifier.predict(imageBitmap);
-            long stopTime = StopWatch.now();
-            long elapsedTime = StopWatch.getElapsedTime(startTime, stopTime);
-            resultView.putExtra("pred", pred);
-            resultView.putExtra("elapsed", String.valueOf(elapsedTime));
             startPrediction(imageBitmap, resultView);
+            resultView.putExtra("imagedata", byteArray);
         }
         else if (requestCode == pickImageCode  && resultCode == RESULT_OK) {
             byte[] byteArray = null;
@@ -134,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     private void startPrediction(Bitmap imageBitmap, Intent resultView) {
         long startTime = StopWatch.now();
         String pred = classifier.predict(imageBitmap);
+        //String pred = classifier.predict_cars(imageBitmap);
         long stopTime = StopWatch.now();
         int elapsedTime = (int) StopWatch.getElapsedTime(startTime, stopTime);
         resultView.putExtra("pred", pred);
